@@ -1,0 +1,113 @@
+﻿@inject Kurs.Data.BlogContext _context
+
+@{
+    ViewBag.Title = "Movies";
+    var movies = _context.Articles.ToList(); // Загружаем статьи из базы данных
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .article {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+            .article h2 {
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+            }
+
+            .article p {
+                font-size: 1rem;
+                color: #6c757d;
+            }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        @if (movies == null || movies.Count == 0)
+        {
+            <div class="alert alert-warning" role="alert">
+                No movies available. Add some movies!
+            </div>
+        }
+        else
+        {
+            @foreach (var movie in movies)
+            {
+                <div class="article">
+                    <h2>@movie.Title</h2>
+                    <p>@movie.Text</p>
+                    <form method="post" action="/Blog/Delete" class="d-inline">
+                        <input type="hidden" name="id" value="@movie.Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-@movie.Id">
+                        Edit
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="editModal-@movie.Id" tabindex="-1" aria-labelledby="editModalLabel-@movie.Id" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-@movie.Id">Edit Article</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="post" action="/Blog/Edit">
+                                        <input type="hidden" name="id" value="@movie.Id" />
+                                        <div class="form-group">
+                                            <label for="title-@movie.Id">Title</label>
+                                            <input type="text" id="title-@movie.Id" name="title" class="form-control" value="@movie.Title" required />
+                                        </div>
+                                        <div class="form-group mt-3">
+                                            <label for="text-@movie.Id">Content</label>
+                                            <textarea id="text-@movie.Id" name="text" class="form-control" rows="5" required>@movie.Text</textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-success mt-3">Save Changes</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="text-center mt-4">
+        <form method="post" action="/Blog/CreateTable" class="border p-4 rounded bg-light">
+            <h3>Add New Article</h3>
+            <div class="form-group">
+                <label for="Title">Title</label>
+                <input type="text" id="Title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group mt-3">
+                <label for="Text">Content</label>
+                <textarea id="Text" name="text" class="form-control" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Add Article</button>
+        </form>
+    </div>
+</body>
+</html>
